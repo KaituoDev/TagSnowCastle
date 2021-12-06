@@ -36,7 +36,7 @@ import org.bukkit.util.EulerAngle;
 
 import java.util.*;
 
-public class Game extends BukkitRunnable implements Listener {
+public class Tag3Game extends BukkitRunnable implements Listener {
     World world;
     Scoreboard scoreboard;
     Scoreboard tag3;
@@ -61,7 +61,7 @@ public class Game extends BukkitRunnable implements Listener {
 
     ItemStack popped_chorus_fruit;
 
-    public Game(Tag3 plugin, long gameTime) {
+    public Tag3Game(Tag3 plugin, long gameTime) {
         this.plugin = plugin;
         this.players = plugin.players;
         this.humans = new ArrayList<>();
@@ -139,7 +139,7 @@ public class Game extends BukkitRunnable implements Listener {
         if (p.getInventory().contains(Material.HEART_OF_THE_SEA)) {
             if (checkCoolDown(p,60)) {
                 p.sendMessage("§b获得暂时隐身！");
-                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,40,0,false,false));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,60,0,false,false));
             }
         }
         if (p.getInventory().contains(Material.ENDER_EYE)) {
@@ -150,6 +150,9 @@ public class Game extends BukkitRunnable implements Listener {
     }
     @EventHandler
     public void armorStandOperation(PlayerInteractAtEntityEvent piaee) {
+        if (!piaee.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) {
+            return;
+        }
         if (!(players.contains(piaee.getPlayer()))) {
             return;
         }
@@ -721,6 +724,22 @@ public class Game extends BukkitRunnable implements Listener {
                 }
 
             }, 500);
+
+            taskIds.add(
+                Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,() -> {
+                    for (Player p: humans) {
+                        if (p.getInventory().contains(Material.RED_DYE)) {
+                            for (Player victim: players) {
+                                victim.sendMessage("§c小红帽§f在场，所有鬼发光5秒！");
+                                if (devils.contains(victim)) {
+                                    victim.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,100,0,false,false));
+                                }
+                            }
+                            return;
+                        }
+
+                    }
+                },1100,600));
 
             taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
                 for (Player p : players) {

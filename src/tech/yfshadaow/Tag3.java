@@ -33,7 +33,7 @@ public class Tag3 extends JavaPlugin implements Listener {
             return;
         }
         if (pie.getClickedBlock().getLocation().equals(new Location(world,-1000, 77, 1015))) {
-            Game game = new Game(this,gameTime);
+            Tag3Game game = new Tag3Game(this,gameTime);
             game.runTask(this);
         }
     }
