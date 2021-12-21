@@ -7,7 +7,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -476,28 +475,28 @@ public class Tag3Game extends BukkitRunnable implements Listener {
         switch (pdie.getItemDrop().getItemStack().getType()) {
             case RABBIT_FOOT:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.RABBIT_FOOT);break;
+                break;
             case STRING:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.STRING);break;
+                break;
             case BOOK:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.BOOK);break;
+                break;
             case ENCHANTED_BOOK:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.ENCHANTED_BOOK);break;
+                break;
             case HEART_OF_THE_SEA:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.HEART_OF_THE_SEA);break;
+                break;
             case ENDER_EYE:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.ENDER_EYE);break;
+                break;
             case RED_DYE:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.RED_DYE);break;
+                break;
             case POPPED_CHORUS_FRUIT:
                 pdie.setCancelled(true);
-                removeItem(pdie.getPlayer(),Material.POPPED_CHORUS_FRUIT);break;
+                break;
             default:
         }
     }
@@ -1008,7 +1007,7 @@ public class Tag3Game extends BukkitRunnable implements Listener {
     }
 
     public long getTime(World world) {
-        return ((CraftWorld) world).getHandle().worldData.getTime();
+        return (world.getGameTime());
     }
     public void clearChests() {
         for (Location l : locations) {
