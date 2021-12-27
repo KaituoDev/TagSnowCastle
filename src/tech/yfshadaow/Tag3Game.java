@@ -69,9 +69,8 @@ public class Tag3Game extends Game implements Listener {
     private Tag3Game(Tag3 plugin) {
         this.plugin = plugin;
         initGame(plugin, "Tag3", 5, new Location(world,-1000, 77, 1015),BlockFace.NORTH,
-                new Location(world, -1007, 77, 1010),spectateButtonDirection= BlockFace.EAST,
+                new Location(world, -1007, 77, 1010),BlockFace.EAST,
                 new Location(world,-1000, 76, 1010), new BoundingBox(-1096, 52, -904,-904, 74, 1096));
-        gameTime = Tag3.gameTime;
         players = plugin.players;
         tag3.registerNewObjective("tag3", "dummy", "鬼抓人");
         tag3.getObjective("tag3").setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -580,13 +579,11 @@ public class Tag3Game extends Game implements Listener {
             }
             armourStandMap.clear();
             playerMap.clear();
-            world.getBlockAt(-1007, 77, 1010).setType(Material.AIR);
-            Block block = world.getBlockAt(-1000, 77, 1015);
-            block.setType(Material.OAK_BUTTON);
-            BlockData data = block.getBlockData().clone();
-            ((Directional) data).setFacing(BlockFace.NORTH);
-            block.setBlockData(data);
+            removeSpectateButton();
+            placeStartButton();
             HandlerList.unregisterAll(this);
+            tag3.getObjective("tag3").getScore("剩余人数").setScore(0);
+            tag3.getObjective("tag3").getScore("剩余时间").setScore(0);
         }, 100);
         players.clear();
         humans.clear();
@@ -617,44 +614,42 @@ public class Tag3Game extends Game implements Listener {
     @Override
     protected void initGameRunnable() {
         gameRunnable = () -> {
-
+            gameTime = Tag3.gameTime;
             team = tag3.registerNewTeam("tag3");
             team.setNameTagVisibility(NameTagVisibility.NEVER);
             team.setCanSeeFriendlyInvisibles(false);
             team.setAllowFriendlyFire(true);
-            for (Entity e : world.getNearbyEntities(new Location(world, -1000, 76, 1010), 20, 20, 20)) {
-                if (e instanceof Player) {
-                    Player p = (Player) e;
-                    if (scoreboard.getTeam("tag3R").hasPlayer(p)) {
-                        devils.add(p);
-                        players.add(p);
-                        team.addPlayer(p);
-                    } else if (scoreboard.getTeam("tag3B").hasPlayer(p)) {
-                        humans.add(p);
-                        players.add(p);
-                        team.addPlayer(p);
-                    } else if (scoreboard.getTeam("tag3W").hasPlayer(p)) {
-                        humans.add(p);
-                        players.add(p);
-                        team.addPlayer(p);
-                    } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
-                        humans.add(p);
-                        players.add(p);
-                        team.addPlayer(p);
-                    } else if (scoreboard.getTeam("tag3Y").hasPlayer(p)) {
-                        humans.add(p);
-                        players.add(p);
-                        team.addPlayer(p);
-                    } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
-                        humans.add(p);
-                        players.add(p);
-                        team.addPlayer(p);
-                    } else if (scoreboard.getTeam("tag3H").hasPlayer(p)) {
-                        humans.add(p);
-                        players.add(p);
-                        team.addPlayer(p);
-                    }
+            for (Player p : getStartingPlayers()) {
+                if (scoreboard.getTeam("tag3R").hasPlayer(p)) {
+                    devils.add(p);
+                    players.add(p);
+                    team.addPlayer(p);
+                } else if (scoreboard.getTeam("tag3B").hasPlayer(p)) {
+                    humans.add(p);
+                    players.add(p);
+                    team.addPlayer(p);
+                } else if (scoreboard.getTeam("tag3W").hasPlayer(p)) {
+                    humans.add(p);
+                    players.add(p);
+                    team.addPlayer(p);
+                } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
+                    humans.add(p);
+                    players.add(p);
+                    team.addPlayer(p);
+                } else if (scoreboard.getTeam("tag3Y").hasPlayer(p)) {
+                    humans.add(p);
+                    players.add(p);
+                    team.addPlayer(p);
+                } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
+                    humans.add(p);
+                    players.add(p);
+                    team.addPlayer(p);
+                } else if (scoreboard.getTeam("tag3H").hasPlayer(p)) {
+                    humans.add(p);
+                    players.add(p);
+                    team.addPlayer(p);
                 }
+
             }
             if (players.size() < 2) {
                 for (Player p : players) {
@@ -681,40 +676,15 @@ public class Tag3Game extends Game implements Listener {
             } else {
                 running = true;
                 startTime = getTime(world);
-                world.getBlockAt(-1000, 77, 1015).setType(Material.AIR);
+                removeStartButton();
+                startCountdown();
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     for (Player p : players) {
                         p.setPlayerWeather(WeatherType.DOWNFALL);
                         p.setPlayerTime(18000,false);
-                        p.sendTitle("§a游戏还有 5 秒开始", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
                         p.getInventory().clear();
                     }
                 });
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a游戏还有 4 秒开始", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, 20);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a游戏还有 3 秒开始", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, 40);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a游戏还有 2 秒开始", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, 60);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a游戏还有 1 秒开始", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, 80);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     Bukkit.getPluginManager().registerEvents(this, plugin);
                     for (Player p : humans) {
@@ -729,48 +699,42 @@ public class Tag3Game extends Game implements Listener {
                         } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
                             p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,10000000,0,false,false));
                         }
-                        p.sendTitle("§b鬼将在20秒后现身！", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2f);
                         p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 0, false, false));
                     }
 
-                }, 100);
+                }, countDownSeconds * 20);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     for (Player p : players) {
                         p.sendTitle("§a5", null, 2, 16, 2);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
                     }
-                }, 400);
+                }, countDownSeconds * 20 + 300);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     for (Player p : players) {
                         p.sendTitle("§a4", null, 2, 16, 2);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
                     }
-                }, 420);
+                }, countDownSeconds * 20 + 320);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     for (Player p : players) {
                         p.sendTitle("§a3", null, 2, 16, 2);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
                     }
-                }, 440);
+                }, countDownSeconds * 20 + 340);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     for (Player p : players) {
                         p.sendTitle("§a2", null, 2, 16, 2);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
                     }
-                }, 460);
+                }, countDownSeconds * 20 + 360);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     for (Player p : players) {
                         p.sendTitle("§a1", null, 2, 16, 2);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
                     }
-                }, 480);
+                }, countDownSeconds * 20 + 380);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    Block block = world.getBlockAt(-1007, 77, 1010);
-                    block.setType(Material.OAK_BUTTON);
-                    BlockData data = block.getBlockData().clone();
-                    ((Directional) data).setFacing(BlockFace.EAST);
-                    block.setBlockData(data);
+                    placeSpectateButton();
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "function tag3:go");
                     for (Player p : devils) {
                         p.teleport(new Location(world, -1000, 53, 975));
@@ -804,7 +768,7 @@ public class Tag3Game extends Game implements Listener {
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2f);
                     }
 
-                }, 500);
+                }, countDownSeconds * 20 + 400);
 
                 taskIds.add(
                         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,() -> {
