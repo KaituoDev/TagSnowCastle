@@ -17,12 +17,17 @@ import org.bukkit.scoreboard.Team;
 import java.util.ArrayList;
 import java.util.List;
 
+import static tech.yfshadaow.GameUtils.unregisterGame;
+import static tech.yfshadaow.GameUtils.world;
+
 public class Tag3 extends JavaPlugin implements Listener {
-    World world;
-    List<Player> players;
-    long gameTime;
-    Boolean isGameRunning;
+    static List<Player> players;
+    static long gameTime;
     Scoreboard scoreboard;
+
+    public static Tag3Game getGameInstance() {
+        return Tag3Game.getInstance();
+    }
 
     @EventHandler
     public void onButtonClicked(PlayerInteractEvent pie) {
@@ -33,8 +38,7 @@ public class Tag3 extends JavaPlugin implements Listener {
             return;
         }
         if (pie.getClickedBlock().getLocation().equals(new Location(world,-1000, 77, 1015))) {
-            Tag3Game game = new Tag3Game(this,gameTime);
-            game.runTask(this);
+            Tag3Game.getInstance().startGame();
         }
     }
     @EventHandler
@@ -63,7 +67,7 @@ public class Tag3 extends JavaPlugin implements Listener {
             sign.setLine(2,"当前时间为 " + gameTime/1200 + " 分钟");
             sign.update();
         }
-        if (isGameRunning) {
+        if (Tag3Game.getInstance().running) {
             return;
         }
         if (x == -1002 && y == 77 && z == 1003) {
@@ -174,15 +178,14 @@ public class Tag3 extends JavaPlugin implements Listener {
         }
     }
     public void onEnable() {
-        this.scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        isGameRunning = false;
-        this.world = Bukkit.getWorld("world");
-        this.players = new ArrayList<>();
+        players = new ArrayList<>();
+        scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         Bukkit.getPluginManager().registerEvents(this, this);
         gameTime = 8400;
         Sign sign = (Sign) world.getBlockAt(-1000,78,1015).getState();
         sign.setLine(2,"当前时间为 " + gameTime/1200 + " 分钟");
         sign.update();
+        GameUtils.registerGame(getGameInstance());
     }
 
     public void onDisable() {
@@ -191,9 +194,10 @@ public class Tag3 extends JavaPlugin implements Listener {
         if (players.size() > 0) {
             for (Player p : players) {
                 p.teleport(new Location(world, 0.5,89.0,0.5));
-                Bukkit.getPluginManager().callEvent(new PlayerChangeGameEvent(p));
+                Bukkit.getPluginManager().callEvent(new PlayerChangeGameEvent(p, getGameInstance(), null));
             }
         }
+        unregisterGame(getGameInstance());
     }
 
 }
