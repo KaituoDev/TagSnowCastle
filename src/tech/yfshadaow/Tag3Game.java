@@ -390,6 +390,13 @@ public class Tag3Game extends Game implements Listener {
             edbee.setCancelled(true);
         }
         if (devils.contains(edbee.getDamager()) && humans.contains(edbee.getEntity())) {
+            Location l = edbee.getDamager().getLocation().clone();
+            int id = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+                edbee.getDamager().teleport(l);
+            },1,1);
+            Bukkit.getScheduler().runTaskLater(plugin, ()-> {
+                Bukkit.getScheduler().cancelTask(id);
+            }, 60);
             ((Player) edbee.getDamager()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 254, false, false));
             ((Player) edbee.getDamager()).addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 60, 190, false, false));
             ((Player) edbee.getDamager()).addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS,60,254, false, false));
