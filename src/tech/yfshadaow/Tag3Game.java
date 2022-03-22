@@ -68,7 +68,7 @@ public class Tag3Game extends Game implements Listener {
 
     private Tag3Game(Tag3 plugin) {
         this.plugin = plugin;
-        initGame(plugin, "Tag3", 5, new Location(world,-1000, 77, 1015),BlockFace.NORTH,
+        initGame(plugin, "Tag3", "§c鬼抓人§f-白雪城", 5, new Location(world,-1000, 77, 1015),BlockFace.NORTH,
                 new Location(world, -1007, 77, 1010),BlockFace.EAST,
                 new Location(world,-1000, 76, 1010), new BoundingBox(-1096, 52, -904,-904, 74, 1096));
         players = plugin.players;
