@@ -1,6 +1,8 @@
-package tech.yfshadaow;
+package fun.kaituo;
 
 
+import fun.kaituo.event.PlayerChangeGameEvent;
+import fun.kaituo.event.PlayerEndGameEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -35,8 +37,8 @@ import org.bukkit.util.EulerAngle;
 
 import java.util.*;
 
-import static tech.yfshadaow.GameUtils.*;
-import static tech.yfshadaow.GameUtils.getPlayerQuitData;
+import static fun.kaituo.GameUtils.*;
+import static fun.kaituo.GameUtils.getPlayerQuitData;
 
 public class Tag3Game extends Game implements Listener {
     private static Tag3Game instance = new Tag3Game((Tag3) Bukkit.getPluginManager().getPlugin("Tag3"));
@@ -50,6 +52,7 @@ public class Tag3Game extends Game implements Listener {
     Team team;
     Location[] locations;
     boolean running = false;
+    int countDownSeconds =10;
 
     public static Tag3Game getInstance() {
         return instance;
@@ -68,10 +71,11 @@ public class Tag3Game extends Game implements Listener {
 
     private Tag3Game(Tag3 plugin) {
         this.plugin = plugin;
-        initGame(plugin, "Tag3", "§c鬼抓人§f-白雪城", 5, new Location(world,-1000, 77, 1015),BlockFace.NORTH,
-                new Location(world, -1007, 77, 1010),BlockFace.EAST,
-                new Location(world,-1000, 76, 1010), new BoundingBox(-1096, 52, -904,-904, 74, 1096));
-        players = plugin.players;
+        initializeGame(plugin, "Tag3", "§c鬼抓人§f-白雪城", new Location(world,-1000, 76, 1010),
+                new BoundingBox(-1096, 52, -904,-904, 74, 1096));
+        initializeButtons(new Location(world,-1000, 77, 1015),BlockFace.NORTH,
+                new Location(world, -1007, 77, 1010),BlockFace.EAST);
+        players = Tag3.players;
         tag3.registerNewObjective("tag3", "dummy", "鬼抓人");
         tag3.getObjective("tag3").setDisplaySlot(DisplaySlot.SIDEBAR);
         locations = new Location[] {
@@ -596,13 +600,9 @@ public class Tag3Game extends Game implements Listener {
         humans.clear();
         devils.clear();
         team.unregister();
-        List<Integer> taskIdsCopy = new ArrayList<>(taskIds);
-        taskIds.clear();
         running = false;
         gameUUID = UUID.randomUUID();
-        for (int i : taskIdsCopy) {
-            Bukkit.getScheduler().cancelTask(i);
-        }
+        cancelGameTasks();
     }
 
     public static void spawnFirework(Location location) {
@@ -619,14 +619,14 @@ public class Tag3Game extends Game implements Listener {
     }
 
     @Override
-    protected void initGameRunnable() {
+    protected void initializeGameRunnable() {
         gameRunnable = () -> {
             gameTime = Tag3.gameTime;
             team = tag3.registerNewTeam("tag3");
             team.setNameTagVisibility(NameTagVisibility.NEVER);
             team.setCanSeeFriendlyInvisibles(false);
             team.setAllowFriendlyFire(true);
-            for (Player p : getStartingPlayers()) {
+            for (Player p : getPlayersNearHub(50,50,50)) {
                 if (scoreboard.getTeam("tag3R").hasPlayer(p)) {
                     devils.add(p);
                     players.add(p);
@@ -684,7 +684,7 @@ public class Tag3Game extends Game implements Listener {
                 running = true;
                 startTime = getTime(world);
                 removeStartButton();
-                startCountdown();
+                startCountdown(countDownSeconds);
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     for (Player p : players) {
                         p.setPlayerWeather(WeatherType.DOWNFALL);
