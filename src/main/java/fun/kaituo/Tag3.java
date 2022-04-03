@@ -16,6 +16,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static fun.kaituo.GameUtils.unregisterGame;
@@ -25,6 +26,9 @@ public class Tag3 extends JavaPlugin implements Listener {
     static List<Player> players;
     static long gameTime;
     Scoreboard scoreboard;
+    List<String> teamNames = new ArrayList<>(List.of(new String[]{"tag3Y", "tag3W","tag3X","tag3H",
+            "tag3R","tag3G","tag3B",}));
+    List<Team> teams = new ArrayList<>();
 
     public static Tag3Game getGameInstance() {
         return Tag3Game.getInstance();
@@ -75,105 +79,49 @@ public class Tag3 extends JavaPlugin implements Listener {
             if (scoreboard.getTeam("tag3Y").hasPlayer(player)) {
                 return;
             }
-            for (Team team : scoreboard.getTeams()) {
-                if (team.getName().contains("tag3")) {
-                    for (OfflinePlayer p: team.getPlayers()) {
-                        if (p.isOnline()) {
-                            ((Player)p).sendMessage("§f" + player.getName()+" §r誓约了 §f诺登");
-                        }
-                    }
-                }
-            }
+            sendMessageToTag3Players(player, "诺登", "§f");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3Y " + player.getName());
             player.sendMessage("§f诺登§f： 欢迎回来，" + player.getName() + "大人");
         } else if (x == -1002 && y == 77 && z == 999) {
             if (scoreboard.getTeam("tag3W").hasPlayer(player)) {
                 return;
             }
-            for (Team team : scoreboard.getTeams()) {
-                if (team.getName().contains("tag3")) {
-                    for (OfflinePlayer p: team.getPlayers()) {
-                        if (p.isOnline()) {
-                            ((Player)p).sendMessage("§d" + player.getName()+" §r誓约了 §d柴郡猫");
-                        }
-                    }
-                }
-            }
+            sendMessageToTag3Players(player, "柴郡猫", "§d");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3W " + player.getName());
             player.sendMessage("§d柴郡猫§f： 能和你再说上话真是太好喵");
         } else if (x == -1002 && y == 77 && z == 997) {
             if (scoreboard.getTeam("tag3X").hasPlayer(player)) {
                 return;
             }
-            for (Team team : scoreboard.getTeams()) {
-                if (team.getName().contains("tag3")) {
-                    for (OfflinePlayer p: team.getPlayers()) {
-                        if (p.isOnline()) {
-                            ((Player)p).sendMessage("§c" + player.getName()+" §r誓约了 §c小红帽");
-                        }
-                    }
-                }
-            }
+            sendMessageToTag3Players(player, "小红帽", "§c");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3X " + player.getName());
             player.sendMessage("§c小红帽§f： .......好了,我们出发吧");
         } else if (x == -1002 && y == 77 && z == 995) {
             if (scoreboard.getTeam("tag3H").hasPlayer(player)) {
                 return;
             }
-            for (Team team : scoreboard.getTeams()) {
-                if (team.getName().contains("tag3")) {
-                    for (OfflinePlayer p: team.getPlayers()) {
-                        if (p.isOnline()) {
-                            ((Player)p).sendMessage("§b" + player.getName()+" §r誓约了 §b爱丽丝");
-                        }
-                    }
-                }
-            }
+            sendMessageToTag3Players(player, "爱丽丝", "§b");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3H " + player.getName());
             player.sendMessage("§b爱丽丝§f： 去寻觅爱的浪漫吧~☆");
         } else if (x == -998 && y == 77 && z == 1003) {
             if (scoreboard.getTeam("tag3R").hasPlayer(player)) {
                 return;
             }
-            for (Team team : scoreboard.getTeams()) {
-                if (team.getName().contains("tag3")) {
-                    for (OfflinePlayer p: team.getPlayers()) {
-                        if (p.isOnline()) {
-                            ((Player)p).sendMessage("§8" + player.getName()+" §r选择成为 §8鬼");
-                        }
-                    }
-                }
-            }
+            sendMessageToTag3Players(player, "琳达梅尔", "§8");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3R " + player.getName());
             player.sendMessage("§8琳达梅尔§f： 我要重建新的黒之裁判，将盘踞于大地之上的罪人处刑！");
         } else if (x == -998 && y == 77 && z == 999) {
             if (scoreboard.getTeam("tag3G").hasPlayer(player)) {
                 return;
             }
-            for (Team team : scoreboard.getTeams()) {
-                if (team.getName().contains("tag3")) {
-                    for (OfflinePlayer p: team.getPlayers()) {
-                        if (p.isOnline()) {
-                            ((Player)p).sendMessage("§7" + player.getName()+" §r誓约了 §7梅贝尔");
-                        }
-                    }
-                }
-            }
+            sendMessageToTag3Players(player, "梅贝尔", "§7");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3G " + player.getName());
             player.sendMessage("§7梅贝尔§f： 真的可以么？不要后悔哟~");
         } else if (x == -998 && y == 77 && z == 995) {
             if (scoreboard.getTeam("tag3B").hasPlayer(player)) {
                 return;
             }
-            for (Team team : scoreboard.getTeams()) {
-                if (team.getName().contains("tag3")) {
-                    for (OfflinePlayer p: team.getPlayers()) {
-                        if (p.isOnline()) {
-                            ((Player)p).sendMessage("§9" + player.getName()+" §r誓约了 §9克缇");
-                        }
-                    }
-                }
-            }
+            sendMessageToTag3Players(player, "克缇", "§r");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3B " + player.getName());
             player.sendMessage("§9克缇§f： 嗯，嗯，克缇，记住了哦。请多指教，"+ player.getName() + "酱");
         }
@@ -181,6 +129,9 @@ public class Tag3 extends JavaPlugin implements Listener {
     public void onEnable() {
         players = new ArrayList<>();
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        for (String name : teamNames) {
+            teams.add(scoreboard.getTeam(name));
+        }
         Bukkit.getPluginManager().registerEvents(this, this);
         gameTime = 8400;
         Sign sign = (Sign) world.getBlockAt(-1000,78,1015).getState();
@@ -201,5 +152,17 @@ public class Tag3 extends JavaPlugin implements Listener {
         unregisterGame(getGameInstance());
     }
 
+    private void sendMessageToTag3Players(Player player, String role, String color) {
+        for (Team team: teams) {
+            for (String entryName : team.getEntries()) {
+                Player p = Bukkit.getPlayer(entryName);
+                if (p != null) {
+                    if (p.isOnline()) {
+                        p.sendMessage(color + player.getName()+" §r誓约了 " + color + role);
+                    }
+                }
+            }
+        }
+    }
 }
 
