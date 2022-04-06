@@ -71,7 +71,7 @@ public class Tag3Game extends Game implements Listener {
 
     private Tag3Game(Tag3 plugin) {
         this.plugin = plugin;
-        initializeGame(plugin, "Tag3", "§c鬼抓人§f-白雪城", new Location(world,-1000, 76, 1010),
+        initializeGame(plugin, "Tag3", "§f白雪城", new Location(world,-1000, 76, 1010),
                 new BoundingBox(-1096, 52, -904,-904, 74, 1096));
         initializeButtons(new Location(world,-1000, 77, 1015),BlockFace.NORTH,
                 new Location(world, -1007, 77, 1010),BlockFace.EAST);
@@ -446,8 +446,14 @@ public class Tag3Game extends Game implements Listener {
             }
             return;
         }
-        Location l = pde.getEntity().getLocation();
-        l.setY(l.getY() - 0.65);
+        Location l = pde.getEntity().getLocation().clone();
+
+        ArmorStand ice = (ArmorStand) world.spawnEntity(l, EntityType.ARMOR_STAND);
+        ice.getEquipment().setHelmet(new ItemStack(Material.ICE)); ice.setBasePlate(false);
+        ice.setInvisible(true);
+
+        l.setY(0);
+
         ArmorStand head = (ArmorStand) world.spawnEntity(l, EntityType.ARMOR_STAND);
         ItemStack headItem = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) headItem.getItemMeta();
@@ -458,13 +464,19 @@ public class Tag3Game extends Game implements Listener {
         EulerAngle angle = new EulerAngle(Math.PI,0,0);
         head.setLeftLegPose(angle);
         head.setRightLegPose(angle);
-        head.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,600,0));
-        l.setY(l.getY() - 0.75);
-        ArmorStand ice = (ArmorStand) world.spawnEntity(l, EntityType.ARMOR_STAND);
-        ice.getEquipment().setHelmet(new ItemStack(Material.ICE)); ice.setGravity(false);ice.setBasePlate(false);
-        ice.setInvisible(true);
+
         armourStandMap.put(ice, head);
         playerMap.put(ice,pde.getEntity());
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            ice.setGravity(false);
+            Location iceLocation = ice.getLocation().clone();
+            iceLocation.setY(iceLocation.getY() - 1.4);
+            ice.teleport(iceLocation);
+            head.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,550,0));
+            iceLocation.setY(iceLocation.getY() + 0.75);
+            head.teleport(iceLocation);
+        },50);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (head.isValid()) {
                 head.remove();
