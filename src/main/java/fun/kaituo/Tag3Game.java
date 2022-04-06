@@ -34,6 +34,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -451,7 +452,7 @@ public class Tag3Game extends Game implements Listener {
         ArmorStand ice = (ArmorStand) world.spawnEntity(l, EntityType.ARMOR_STAND);
         ice.setBasePlate(false);
         ice.setInvisible(true);
-        ice.setGravity(false);
+        ice.setVelocity(new Vector(0, -50, 0));
 
         l.setY(0);
 
@@ -478,11 +479,13 @@ public class Tag3Game extends Game implements Listener {
             Location iceLocation = ice.getLocation().clone();
             iceLocation.setY(iceLocation.getY() - 1.4);
             ice.teleport(iceLocation);
-            ice.getEquipment().setHelmet(new ItemStack(Material.ICE));
-            head.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,550,0));
             iceLocation.setY(iceLocation.getY() + 0.75);
             head.teleport(iceLocation);
-        },50);
+        },5);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            ice.getEquipment().setHelmet(new ItemStack(Material.ICE));
+            head.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,550,0));
+        },6);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (head.isValid()) {
                 head.remove();
