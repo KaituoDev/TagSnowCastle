@@ -449,8 +449,9 @@ public class Tag3Game extends Game implements Listener {
         Location l = pde.getEntity().getLocation().clone();
 
         ArmorStand ice = (ArmorStand) world.spawnEntity(l, EntityType.ARMOR_STAND);
-        ice.getEquipment().setHelmet(new ItemStack(Material.ICE)); ice.setBasePlate(false);
+        ice.setBasePlate(false);
         ice.setInvisible(true);
+        ice.setGravity(false);
 
         l.setY(0);
 
@@ -459,7 +460,11 @@ public class Tag3Game extends Game implements Listener {
         SkullMeta skullMeta = (SkullMeta) headItem.getItemMeta();
         skullMeta.setOwningPlayer(pde.getEntity());
         headItem.setItemMeta(skullMeta);
-        head.setBasePlate(false);head.setSmall(true); head.getEquipment().setHelmet(headItem); head.setGravity(false); head.setCustomName(pde.getEntity().getName()); head.setCustomNameVisible(true);
+        head.setBasePlate(false);head.setSmall(true);
+        head.getEquipment().setHelmet(headItem);
+        head.setGravity(false);
+        head.setCustomName(pde.getEntity().getName());
+        head.setCustomNameVisible(true);
         head.setInvisible(true);
         EulerAngle angle = new EulerAngle(Math.PI,0,0);
         head.setLeftLegPose(angle);
@@ -473,6 +478,7 @@ public class Tag3Game extends Game implements Listener {
             Location iceLocation = ice.getLocation().clone();
             iceLocation.setY(iceLocation.getY() - 1.4);
             ice.teleport(iceLocation);
+            ice.getEquipment().setHelmet(new ItemStack(Material.ICE));
             head.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,550,0));
             iceLocation.setY(iceLocation.getY() + 0.75);
             head.teleport(iceLocation);
