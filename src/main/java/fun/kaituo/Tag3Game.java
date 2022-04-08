@@ -146,7 +146,7 @@ public class Tag3Game extends Game implements Listener {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,60,0,false,false));
             }
         }
-        if (p.getInventory().contains(Material.ENDER_EYE)) {
+        if (p.getInventory().contains(Material.RED_DYE)) {
             p.sendMessage("获得生命恢复与发光！");
             p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION,200,0,false,false));
             p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,100,0,false,false));
@@ -186,7 +186,7 @@ public class Tag3Game extends Game implements Listener {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION,10000000,4,true,false));
                 } else if (scoreboard.getTeam("tag3B").hasPlayer(p)) {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING,10000000,0,false,false));
-                } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
+                } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,10000000,0,false,false));
                 }
             },1);
@@ -219,7 +219,7 @@ public class Tag3Game extends Game implements Listener {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION,10000000,4,true,false));
                 } else if (scoreboard.getTeam("tag3B").hasPlayer(p)) {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING,10000000,0,false,false));
-                } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
+                } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
                     p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,10000000,0,false,false));
                 }
             },1);
@@ -416,6 +416,8 @@ public class Tag3Game extends Game implements Listener {
         return itemStack;
     }
 
+    //seems not useful
+    /*
     @EventHandler
     public void cancelPickup(PlayerPickupItemEvent ppie) {
         Player p = ppie.getPlayer();
@@ -432,6 +434,8 @@ public class Tag3Game extends Game implements Listener {
             }
         }
     }
+
+     */
 
     @EventHandler
     public void summonCorpse(PlayerDeathEvent pde) {
@@ -660,7 +664,7 @@ public class Tag3Game extends Game implements Listener {
                     humans.add(p);
                     players.add(p);
                     team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
+                } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
                     humans.add(p);
                     players.add(p);
                     team.addPlayer(p);
@@ -668,7 +672,7 @@ public class Tag3Game extends Game implements Listener {
                     humans.add(p);
                     players.add(p);
                     team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
+                } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
                     humans.add(p);
                     players.add(p);
                     team.addPlayer(p);
@@ -724,7 +728,7 @@ public class Tag3Game extends Game implements Listener {
                             p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION,10000000,4,true,false));
                         } else if (scoreboard.getTeam("tag3B").hasPlayer(p)) {
                             p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING,10000000,0,false,false));
-                        } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
+                        } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
                             p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,10000000,0,false,false));
                         }
                         p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 0, false, false));
@@ -801,9 +805,9 @@ public class Tag3Game extends Game implements Listener {
                 taskIds.add(
                         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,() -> {
                             for (Player p: humans) {
-                                if (p.getInventory().contains(Material.RED_DYE)) {
+                                if (p.getInventory().contains(Material.ENDER_EYE)) {
                                     for (Player victim: players) {
-                                        victim.sendMessage("§c小红帽§f在场，所有鬼发光5秒！");
+                                        victim.sendMessage("§7梅贝尔§f在场，所有鬼发光5秒！");
                                         if (devils.contains(victim)) {
                                             victim.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING,100,0,false,false));
                                         }
