@@ -121,7 +121,7 @@ public class Tag3 extends JavaPlugin implements Listener {
             if (scoreboard.getTeam("tag3B").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "克缇", "§r");
+            sendMessageToTag3Players(player, "克缇", "§9");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3B " + player.getName());
             player.sendMessage("§9克缇§f： 嗯，嗯，克缇，记住了哦。请多指教，"+ player.getName() + "酱");
         }
