@@ -816,7 +816,7 @@ public class Tag3Game extends Game implements Listener {
                                 }
 
                             }
-                        },1100,600));
+                        },countDownSeconds * 20 + 400 + 600,600));
 
                 taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
                     for (Player p : players) {
@@ -842,7 +842,7 @@ public class Tag3Game extends Game implements Listener {
                             }
                         }
                     }
-                }, 500, 20));
+                }, countDownSeconds * 20 + 400, 20));
 
                 taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
                     for (Player p : players) {
@@ -871,7 +871,7 @@ public class Tag3Game extends Game implements Listener {
                             }
                         }
                     }
-                }, 1100, 1200));
+                }, countDownSeconds * 20 + 400 + 600, 1200));
 
 
                 taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
@@ -941,7 +941,7 @@ public class Tag3Game extends Game implements Listener {
                     }
                     tag3.getObjective("tag3").getScore("剩余人数").setScore(humans.size());
                     tag3.getObjective("tag3").getScore("剩余时间").setScore((int) ((gameTime - (time - startTime)) / 20));
-                }, 500, 1));
+                }, countDownSeconds * 20 + 400, 1));
             }
         };
     }
