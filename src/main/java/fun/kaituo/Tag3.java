@@ -2,7 +2,9 @@ package fun.kaituo;
 
 
 import fun.kaituo.event.PlayerChangeGameEvent;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,7 +18,6 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static fun.kaituo.GameUtils.unregisterGame;
@@ -26,8 +27,8 @@ public class Tag3 extends JavaPlugin implements Listener {
     static List<Player> players;
     static long gameTime;
     Scoreboard scoreboard;
-    List<String> teamNames = new ArrayList<>(List.of(new String[]{"tag3Y", "tag3W","tag3X","tag3H",
-            "tag3R","tag3G","tag3B",}));
+    List<String> teamNames = new ArrayList<>(List.of(new String[]{"tag3Y", "tag3W", "tag3X", "tag3H",
+            "tag3R", "tag3G", "tag3B",}));
     List<Team> teams = new ArrayList<>();
 
     public static Tag3Game getGameInstance() {
@@ -42,10 +43,11 @@ public class Tag3 extends JavaPlugin implements Listener {
         if (!pie.getClickedBlock().getType().equals(Material.OAK_BUTTON)) {
             return;
         }
-        if (pie.getClickedBlock().getLocation().equals(new Location(world,-1000, 77, 1015))) {
+        if (pie.getClickedBlock().getLocation().equals(new Location(world, -1000, 77, 1015))) {
             Tag3Game.getInstance().startGame();
         }
     }
+
     @EventHandler
     public void setGameTime(PlayerInteractEvent pie) {
         Player player = pie.getPlayer();
@@ -53,9 +55,11 @@ public class Tag3 extends JavaPlugin implements Listener {
             return;
         }
         Location location = pie.getClickedBlock().getLocation();
-        long x = location.getBlockX(); long y = location.getBlockY(); long z = location.getBlockZ();
+        long x = location.getBlockX();
+        long y = location.getBlockY();
+        long z = location.getBlockZ();
         if (x == -1000 && y == 78 && z == 1015) {
-            switch ((int)gameTime) {
+            switch ((int) gameTime) {
                 case 8400:
                 case 10800:
                 case 13200:
@@ -69,7 +73,7 @@ public class Tag3 extends JavaPlugin implements Listener {
                     break;
             }
             Sign sign = (Sign) pie.getClickedBlock().getState();
-            sign.setLine(2,"当前时间为 " + gameTime/1200 + " 分钟");
+            sign.setLine(2, "当前时间为 " + gameTime / 1200 + " 分钟");
             sign.update();
         }
         if (Tag3Game.getInstance().running) {
@@ -123,9 +127,10 @@ public class Tag3 extends JavaPlugin implements Listener {
             }
             sendMessageToTag3Players(player, "克缇", "§9");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3B " + player.getName());
-            player.sendMessage("§9克缇§f： 嗯，嗯，克缇，记住了哦。请多指教，"+ player.getName() + "酱");
+            player.sendMessage("§9克缇§f： 嗯，嗯，克缇，记住了哦。请多指教，" + player.getName() + "酱");
         }
     }
+
     public void onEnable() {
         players = new ArrayList<>();
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
@@ -134,18 +139,18 @@ public class Tag3 extends JavaPlugin implements Listener {
         }
         Bukkit.getPluginManager().registerEvents(this, this);
         gameTime = 8400;
-        Sign sign = (Sign) world.getBlockAt(-1000,78,1015).getState();
-        sign.setLine(2,"当前时间为 " + gameTime/1200 + " 分钟");
+        Sign sign = (Sign) world.getBlockAt(-1000, 78, 1015).getState();
+        sign.setLine(2, "当前时间为 " + gameTime / 1200 + " 分钟");
         sign.update();
         GameUtils.registerGame(getGameInstance());
     }
 
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
-        HandlerList.unregisterAll((Plugin)this);
+        HandlerList.unregisterAll((Plugin) this);
         if (players.size() > 0) {
             for (Player p : players) {
-                p.teleport(new Location(world, 0.5,89.0,0.5));
+                p.teleport(new Location(world, 0.5, 89.0, 0.5));
                 Bukkit.getPluginManager().callEvent(new PlayerChangeGameEvent(p, getGameInstance(), null));
             }
         }
@@ -153,12 +158,12 @@ public class Tag3 extends JavaPlugin implements Listener {
     }
 
     private void sendMessageToTag3Players(Player player, String role, String color) {
-        for (Team team: teams) {
+        for (Team team : teams) {
             for (String entryName : team.getEntries()) {
                 Player p = Bukkit.getPlayer(entryName);
                 if (p != null) {
                     if (p.isOnline()) {
-                        p.sendMessage(color + player.getName()+" §r誓约了 " + color + role);
+                        p.sendMessage(color + player.getName() + " §r誓约了 " + color + role);
                     }
                 }
             }
