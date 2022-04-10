@@ -87,6 +87,11 @@ public class Tag3Game extends Game implements Listener {
     ItemStack enchanted_book = generateItemStack(Material.ENCHANTED_BOOK, "§l§8§k爱丽丝·里德尔的誓约", new String[]{"持有者速度永久增加，但无法被复活", "§7§m我将永远爱着你"});
 
 
+    List<ItemStack> gadgets = Arrays.asList(feather, glass_bottle, nether_star, clock, potion, honey_bottle, coal, dragon_breath);
+    List<Integer> gadgetWeights = Arrays.asList(10, 5, 1, 10, 1, 10, 5, 10);
+
+    int totalWeight;
+
     private Tag3Game(Tag3 plugin) {
         this.plugin = plugin;
         initializeGame(plugin, "Tag3", "§f白雪城", new Location(world, -1000, 76, 1010),
@@ -96,6 +101,9 @@ public class Tag3Game extends Game implements Listener {
         players = Tag3.players;
         tag3.registerNewObjective("tag3", "dummy", "鬼抓人");
         tag3.getObjective("tag3").setDisplaySlot(DisplaySlot.SIDEBAR);
+        for (int i : gadgetWeights) {
+            totalWeight += i;
+        }
     }
 
     public static Tag3Game getInstance() {
@@ -789,16 +797,8 @@ public class Tag3Game extends Game implements Listener {
                     }
                     for (Location loc : locations) {
                         double spawnChance = random.nextDouble();
-                        if (spawnChance < 0.5) {
-
-                            List<ItemStack> gadgets = Arrays.asList(feather, glass_bottle, nether_star, clock, potion, honey_bottle, coal, dragon_breath);
-                            List<Integer> gadgetWeights = Arrays.asList(10, 5, 1, 10, 1, 10, 5, 10);
-
-                            int total = 0;
-                            for (int i : gadgetWeights) {
-                                total += i;
-                            }
-                            int spawnNo = random.nextInt(total);
+                        if (spawnChance < 0.5) {//overall chance
+                            int spawnNo = random.nextInt(totalWeight);
                             int counter = 0;
                             for (int i = 0; i < gadgets.size(); i++) {
                                 counter += gadgetWeights.get(i);
