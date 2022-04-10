@@ -275,10 +275,19 @@ public class Tag3Game extends Game implements Listener {
 
         switch (pie.getItem().getType()) {
             case COAL -> {
-                pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                executor.sendMessage("§c最大生命值减少，生命全部恢复！");
-                executor.setMaxHealth(executor.getMaxHealth() - 3);
-                executor.setHealth(executor.getMaxHealth());
+                if (scoreboard.getTeam("tag3Y").hasPlayer(executor)) {
+                    executor.sendMessage("§c生命全部恢复！");
+                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                } else {
+                    if (executor.getMaxHealth() > 3){
+                        executor.sendMessage("§c最大生命值减少，生命全部恢复！");
+                        executor.setMaxHealth(executor.getMaxHealth() - 3);
+                        executor.setHealth(executor.getMaxHealth());
+                        pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    } else {
+                        executor.sendMessage("§c生命上限过低，无法使用！");
+                    }
+                }
             }
             case POTION -> {
                 pie.getItem().setAmount(pie.getItem().getAmount() - 1);
