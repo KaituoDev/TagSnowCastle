@@ -809,7 +809,7 @@ public class Tag3Game extends Game implements Listener {
                             }
                         }
                     }
-                }, countDownSeconds * 20L + 400 + 6, 20)); //600 1200
+                }, countDownSeconds * 20L + 400 + 600, 1200)); //600 1200
 
 
                 taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
