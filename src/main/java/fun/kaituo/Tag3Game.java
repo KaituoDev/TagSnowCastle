@@ -103,19 +103,6 @@ public class Tag3Game extends Game implements Listener {
         return instance;
     }
 
-    public static void spawnFirework(Location location) {
-        Location loc = location;
-        loc.setY(loc.getY() + 0.9);
-        Firework fw = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
-        FireworkMeta fwm = fw.getFireworkMeta();
-
-        fwm.setPower(2);
-        fwm.addEffect(FireworkEffect.builder().withColor(Color.LIME).flicker(true).build());
-
-        fw.setFireworkMeta(fwm);
-        fw.detonate();
-    }
-
     @EventHandler
     public void clearCoolDown(PlayerDeathEvent pde) {
         clearCoolDown(pde.getEntity());
@@ -160,12 +147,16 @@ public class Tag3Game extends Game implements Listener {
     }
 
     private void initializePlayer(Player p) {
-        if (scoreboard.getTeam("tag3Y").hasPlayer(p)) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 10000000, 4, true, false));
-        } else if (scoreboard.getTeam("tag3B").hasPlayer(p)) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 10000000, 0, false, false));
-        } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10000000, 0, false, false));
+        switch (getTeamPlayerIsIn(p)) {
+            case "tag3Y" -> {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 10000000, 4, true, false));
+            }
+            case "tag3B" -> {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 10000000, 0, false, false));
+            }
+            case "tag3G" -> {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10000000, 0, false, false));
+            }
         }
         p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 0, false, false));
     }
@@ -257,78 +248,79 @@ public class Tag3Game extends Game implements Listener {
         if (!players.contains(executor)) {
             return;
         }//不在tag3里
-        if (devils.contains(executor)) {
+        if (devils.contains(executor)) { //是鬼
             return;
-        } //不是人
-        if (pie.getClickedBlock() != null) {
-            if (pie.getClickedBlock().getType().equals(Material.TRAPPED_CHEST)) {
-                if (!pie.getPlayer().isSneaking()) {
-                    executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 0));
-                    return;
-                }
-            }
-        }
-        if (pie.getItem() == null) {
-            return;
-        }//没有物品
-        //这里开始添加内容
-
-        switch (pie.getItem().getType()) {
-            case COAL -> {
-                if (scoreboard.getTeam("tag3Y").hasPlayer(executor)) {
-                    executor.sendMessage("§c生命全部恢复！");
-                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                } else {
-                    if (executor.getMaxHealth() > 3){
-                        executor.sendMessage("§c最大生命值减少，生命全部恢复！");
-                        executor.setMaxHealth(executor.getMaxHealth() - 3);
-                        executor.setHealth(executor.getMaxHealth());
-                        pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                    } else {
-                        executor.sendMessage("§c生命上限过低，无法使用！");
+        } else if (humans.contains(executor)) { //是人
+            if (pie.getClickedBlock() != null) {
+                if (pie.getClickedBlock().getType().equals(Material.TRAPPED_CHEST)) {
+                    if (!pie.getPlayer().isSneaking()) {
+                        executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 60, 0));
+                        return;
                     }
                 }
             }
-            case POTION -> {
-                pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                executor.sendMessage("§c30秒内无敌，30秒后将被强制击倒！");
-                executor.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 254, false, false));
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    executor.setHealth(0);
-                }, 600);
-            }
-            case GLASS_BOTTLE -> {
-                pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                executor.sendMessage("§c隐身10秒！");
-                executor.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 200, 0, false, false));
-            }
-            case DRAGON_BREATH -> {
-                pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                executor.sendMessage("§c回复一半最大生命值，获得与回复量相同的发光时长！");
-                if (executor.getHealth() * 2 < executor.getMaxHealth()) {
-                    executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, (int) (executor.getMaxHealth() * 10), 0, false, false));
-                    executor.setHealth(executor.getHealth() + executor.getMaxHealth() / 2);
-                } else {
-                    executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, (int) ((executor.getMaxHealth() - executor.getHealth()) * 20), 0, false, false));
-                    executor.setHealth(executor.getMaxHealth());
+            if (pie.getItem() == null) {
+                return;
+            }//没有物品
+            //这里开始添加内容
+
+            switch (pie.getItem().getType()) {
+                case COAL -> {
+                    if (scoreboard.getTeam("tag3Y").hasPlayer(executor)) {
+                        executor.sendMessage("§c生命全部恢复！");
+                        pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    } else {
+                        if (executor.getMaxHealth() > 3){
+                            executor.sendMessage("§c最大生命值减少，生命全部恢复！");
+                            executor.setMaxHealth(executor.getMaxHealth() - 3);
+                            executor.setHealth(executor.getMaxHealth());
+                            pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                        } else {
+                            executor.sendMessage("§c生命上限过低，无法使用！");
+                        }
+                    }
                 }
-            }
-            case HONEY_BOTTLE -> {
-                pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                executor.sendMessage("§e减少一半的当前生命值，获得与减少量两倍相同的加速时间！");
-                executor.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, (int) (executor.getHealth() * 20), 0, false, false));
-                executor.setHealth(executor.getHealth() / 2);
-            }
-            case FEATHER -> {
-                pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                executor.getInventory().addItem(cooked_chicken);
-                executor.sendMessage("§b获得加速！");
-                executor.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 0, false, false));
-            }
-            case COOKED_CHICKEN -> {
-                pie.getItem().setAmount(pie.getItem().getAmount() - 1);
-                executor.sendMessage("§b获得加速！");
-                executor.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 1, false, false));
+                case POTION -> {
+                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    executor.sendMessage("§c30秒内无敌，30秒后将被强制击倒！");
+                    executor.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 254, false, false));
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        executor.setHealth(0);
+                    }, 600);
+                }
+                case GLASS_BOTTLE -> {
+                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    executor.sendMessage("§c隐身10秒！");
+                    executor.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 200, 0, false, false));
+                }
+                case DRAGON_BREATH -> {
+                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    executor.sendMessage("§c回复一半最大生命值，获得与回复量相同的发光时长！");
+                    if (executor.getHealth() * 2 < executor.getMaxHealth()) {
+                        executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, (int) (executor.getMaxHealth() * 10), 0, false, false));
+                        executor.setHealth(executor.getHealth() + executor.getMaxHealth() / 2);
+                    } else {
+                        executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, (int) ((executor.getMaxHealth() - executor.getHealth()) * 20), 0, false, false));
+                        executor.setHealth(executor.getMaxHealth());
+                    }
+                }
+                case HONEY_BOTTLE -> {
+                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    executor.sendMessage("§e减少一半的当前生命值，获得与减少量两倍相同的加速时间！");
+                    executor.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, (int) (executor.getHealth() * 20), 0, false, false));
+                    executor.setHealth(executor.getHealth() / 2);
+                }
+                case FEATHER -> {
+                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    executor.getInventory().addItem(cooked_chicken);
+                    executor.sendMessage("§b获得加速！");
+                    executor.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 0, false, false));
+                }
+                case COOKED_CHICKEN -> {
+                    pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                    executor.sendMessage("§b获得加速！");
+                    executor.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 1, false, false));
+                }
             }
         }
     }
@@ -661,36 +653,16 @@ public class Tag3Game extends Game implements Listener {
             team.setCanSeeFriendlyInvisibles(false);
             team.setAllowFriendlyFire(true);
             for (Player p : getPlayersNearHub(50, 50, 50)) {
-                if (scoreboard.getTeam("tag3R").hasPlayer(p)) {
-                    devils.add(p);
-                    players.add(p);
-                    team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3B").hasPlayer(p)) {
-                    humans.add(p);
-                    players.add(p);
-                    team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3W").hasPlayer(p)) {
-                    humans.add(p);
-                    players.add(p);
-                    team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3G").hasPlayer(p)) {
-                    humans.add(p);
-                    players.add(p);
-                    team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3Y").hasPlayer(p)) {
-                    humans.add(p);
-                    players.add(p);
-                    team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3X").hasPlayer(p)) {
-                    humans.add(p);
-                    players.add(p);
-                    team.addPlayer(p);
-                } else if (scoreboard.getTeam("tag3H").hasPlayer(p)) {
-                    humans.add(p);
-                    players.add(p);
-                    team.addPlayer(p);
+                switch (getTeamPlayerIsIn(p)) {
+                    case "tag3B", "tag3W", "tag3G", "tag3Y", "tag3X", "tag3H" -> {
+                        humans.add(p);
+                    }
+                    case "tag3R" -> {
+                        devils.add(p);
+                    }
                 }
-
+                players.add(p);
+                team.addPlayer(p);
             }
             if (players.size() < 2) {
                 for (Player p : players) {
@@ -737,36 +709,15 @@ public class Tag3Game extends Game implements Listener {
                     }
 
                 }, countDownSeconds * 20L);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a5", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, countDownSeconds * 20L + 300);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a4", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, countDownSeconds * 20L + 320);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a3", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, countDownSeconds * 20L + 340);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a2", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, countDownSeconds * 20L + 360);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Player p : players) {
-                        p.sendTitle("§a1", null, 2, 16, 2);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
-                    }
-                }, countDownSeconds * 20L + 380);
+                for (int i = 0; i < 5; i ++) {
+                    int finalI = i;
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        for (Player p : players) {
+                            p.sendTitle("§a" + (5 - finalI), null, 2, 16, 2);
+                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 1f);
+                        }
+                    }, countDownSeconds * 20L + 300 + i * 20);
+                }
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     placeSpectateButton();
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "function tag3:go");
@@ -882,6 +833,15 @@ public class Tag3Game extends Game implements Listener {
                 }, countDownSeconds * 20L + 400, 1));
             }
         };
+    }
+
+    private String getTeamPlayerIsIn(Player p) {
+        for (Team t : scoreboard.getTeams()) {
+            if (t.hasPlayer(p)) {
+                return t.getName();
+            }
+        }
+        return null;
     }
 
     public void clearChests() {
