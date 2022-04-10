@@ -24,7 +24,6 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
@@ -270,7 +269,7 @@ public class Tag3Game extends Game implements Listener {
                         executor.sendMessage("§c生命全部恢复！");
                         pie.getItem().setAmount(pie.getItem().getAmount() - 1);
                     } else {
-                        if (executor.getMaxHealth() > 3){
+                        if (executor.getMaxHealth() > 3) {
                             executor.sendMessage("§c最大生命值减少，生命全部恢复！");
                             executor.setMaxHealth(executor.getMaxHealth() - 3);
                             executor.setHealth(executor.getMaxHealth());
@@ -709,7 +708,7 @@ public class Tag3Game extends Game implements Listener {
                     }
 
                 }, countDownSeconds * 20L);
-                for (int i = 0; i < 5; i ++) {
+                for (int i = 0; i < 5; i++) {
                     int finalI = i;
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         for (Player p : players) {
@@ -791,27 +790,26 @@ public class Tag3Game extends Game implements Listener {
                     for (Location loc : locations) {
                         double spawnChance = random.nextDouble();
                         if (spawnChance < 0.5) {
-                            double spawnNo = random.nextDouble();
-                            if (spawnNo < (1f / 52 * 10)) {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(feather);
-                            } else if (spawnNo < 1f / 52 * 15) {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(glass_bottle);
-                            } else if (spawnNo < 1f / 52 * 16) {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(nether_star);
-                            } else if (spawnNo < 1f / 52 * 26) {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(clock);
-                            } else if (spawnNo < 1f / 52 * 27) {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(potion);
-                            } else if (spawnNo < 1f / 52 * 37) {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(honey_bottle);
-                            } else if (spawnNo < 1f / 52 * 42) {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(coal);
-                            } else {
-                                ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(dragon_breath);
+
+                            List<ItemStack> gadgets = Arrays.asList(feather, glass_bottle, nether_star, clock, potion, honey_bottle, coal, dragon_breath);
+                            List<Integer> gadgetWeights = Arrays.asList(10, 5, 1, 10, 1, 10, 5, 10);
+
+                            int total = 0;
+                            for (int i : gadgetWeights) {
+                                total += i;
+                            }
+                            int spawnNo = random.nextInt(total);
+                            int counter = 0;
+                            for (int i = 0; i < gadgets.size(); i++) {
+                                counter += gadgetWeights.get(i);
+                                if (spawnNo < counter) {
+                                    ((Chest) (world.getBlockAt(loc).getState())).getBlockInventory().addItem(gadgets.get(i));
+                                    break;
+                                }
                             }
                         }
                     }
-                }, countDownSeconds * 20L + 400 + 600, 1200));
+                }, countDownSeconds * 20L + 400 + 6, 20)); //600 1200
 
 
                 taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
