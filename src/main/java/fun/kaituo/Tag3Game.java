@@ -724,6 +724,7 @@ public class Tag3Game extends Game implements Listener {
                     }
                     for (Player p : players) {
                         initializePlayer(p);
+                        p.setScoreboard(tag3);
                     }
 
                 }, countDownSeconds * 20L);
