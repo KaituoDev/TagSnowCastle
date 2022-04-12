@@ -155,13 +155,13 @@ public class Tag3Game extends Game implements Listener {
 
     private void initializePlayer(Player p) {
         switch (getTeamPlayerIsIn(p)) {
-            case "tag3Y" -> {
+            case "tag3norden" -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 10000000, 4, true, false));
             }
-            case "tag3B" -> {
+            case "tag3kelti" -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 10000000, 0, false, false));
             }
-            case "tag3G" -> {
+            case "tag3mabel" -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10000000, 0, false, false));
             }
         }
@@ -273,7 +273,7 @@ public class Tag3Game extends Game implements Listener {
 
             switch (pie.getItem().getType()) {
                 case COAL -> {
-                    if (scoreboard.getTeam("tag3Y").hasPlayer(executor)) {
+                    if (scoreboard.getTeam("tag3norden").hasPlayer(executor)) {
                         executor.sendMessage("§c生命全部恢复！");
                         pie.getItem().setAmount(pie.getItem().getAmount() - 1);
                     } else {
@@ -619,7 +619,7 @@ public class Tag3Game extends Game implements Listener {
                 Bukkit.getPluginManager().callEvent(new PlayerEndGameEvent(p, this));
             }, 100);
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                scoreboard.getTeam("tag3Y").addPlayer(p);
+                scoreboard.getTeam("tag3norden").addPlayer(p);
             }, 101);
         }
 
@@ -661,10 +661,10 @@ public class Tag3Game extends Game implements Listener {
             team.setAllowFriendlyFire(true);
             for (Player p : getPlayersNearHub(50, 50, 50)) {
                 switch (getTeamPlayerIsIn(p)) {
-                    case "tag3B", "tag3W", "tag3G", "tag3Y", "tag3X", "tag3H" -> {
+                    case "tag3kelti", "tag3chechirecat", "tag3mabel", "tag3norden", "tag3redhat", "tag3alice" -> {
                         humans.add(p);
                     }
-                    case "tag3R" -> {
+                    case "tag3lindamayer" -> {
                         devils.add(p);
                     }
                 }
