@@ -27,7 +27,7 @@ public class Tag3 extends JavaPlugin implements Listener {
     static List<Player> players;
     static long gameTime;
     Scoreboard scoreboard;
-    List<String> teamNames = new ArrayList<>(List.of(new String[]{"tag3norden", "tag3chechirecat", "tag3redhat", "tag3alice",
+    List<String> teamNames = new ArrayList<>(List.of(new String[]{"tag3norden", "tag3cheshirecat", "tag3redhat", "tag3alice",
             "tag3lindamayer", "tag3mabel", "tag3kelti",}));
     List<Team> teams = new ArrayList<>();
 
@@ -87,11 +87,11 @@ public class Tag3 extends JavaPlugin implements Listener {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3norden " + player.getName());
             player.sendMessage("§f诺登§f： 欢迎回来，" + player.getName() + "大人");
         } else if (x == -1002 && y == 77 && z == 999) {
-            if (scoreboard.getTeam("tag3chechirecat").hasPlayer(player)) {
+            if (scoreboard.getTeam("tag3cheshirecat").hasPlayer(player)) {
                 return;
             }
             sendMessageToTag3Players(player, "柴郡猫", "§d");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3chechirecat " + player.getName());
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3cheshirecat " + player.getName());
             player.sendMessage("§d柴郡猫§f： 能和你再说上话真是太好喵");
         } else if (x == -1002 && y == 77 && z == 997) {
             if (scoreboard.getTeam("tag3redhat").hasPlayer(player)) {
