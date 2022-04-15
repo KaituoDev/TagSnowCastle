@@ -83,49 +83,49 @@ public class Tag3 extends JavaPlugin implements Listener {
             if (scoreboard.getTeam("tag3norden").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "诺登", "§f");
+            broadcastHumanChoiceMessage(player, "诺登", "§f");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3norden " + player.getName());
             player.sendMessage("§f诺登§f： 欢迎回来，" + player.getName() + "大人");
         } else if (x == -1002 && y == 77 && z == 999) {
             if (scoreboard.getTeam("tag3cheshirecat").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "柴郡猫", "§d");
+            broadcastHumanChoiceMessage(player, "柴郡猫", "§d");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3cheshirecat " + player.getName());
             player.sendMessage("§d柴郡猫§f： 能和你再说上话真是太好喵");
         } else if (x == -1002 && y == 77 && z == 997) {
             if (scoreboard.getTeam("tag3redhat").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "小红帽", "§c");
+            broadcastHumanChoiceMessage(player, "小红帽", "§c");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3redhat " + player.getName());
             player.sendMessage("§c小红帽§f： .......好了,我们出发吧");
         } else if (x == -1002 && y == 77 && z == 995) {
             if (scoreboard.getTeam("tag3alice").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "爱丽丝", "§b");
+            broadcastHumanChoiceMessage(player, "爱丽丝", "§b");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3alice " + player.getName());
             player.sendMessage("§b爱丽丝§f： 去寻觅爱的浪漫吧~☆");
         } else if (x == -998 && y == 77 && z == 1003) {
             if (scoreboard.getTeam("tag3lindamayer").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "琳达梅尔", "§8");
+            broadcastDevilChoiceMessage(player, "琳达梅尔", "§8");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3lindamayer " + player.getName());
             player.sendMessage("§8琳达梅尔§f： 我要重建新的黒之裁判，将盘踞于大地之上的罪人处刑！");
         } else if (x == -998 && y == 77 && z == 999) {
             if (scoreboard.getTeam("tag3mabel").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "梅贝尔", "§7");
+            broadcastHumanChoiceMessage(player, "梅贝尔", "§7");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3mabel " + player.getName());
             player.sendMessage("§7梅贝尔§f： 真的可以么？不要后悔哟~");
         } else if (x == -998 && y == 77 && z == 995) {
             if (scoreboard.getTeam("tag3kelti").hasPlayer(player)) {
                 return;
             }
-            sendMessageToTag3Players(player, "克缇", "§9");
+            broadcastHumanChoiceMessage(player, "克缇", "§9");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3kelti " + player.getName());
             player.sendMessage("§9克缇§f： 嗯，嗯，克缇，记住了哦。请多指教，" + player.getName() + "酱");
         }
@@ -157,13 +157,25 @@ public class Tag3 extends JavaPlugin implements Listener {
         unregisterGame(getGameInstance());
     }
 
-    private void sendMessageToTag3Players(Player player, String role, String color) {
+    private void broadcastHumanChoiceMessage(Player player, String role, String color) {
         for (Team team : teams) {
             for (String entryName : team.getEntries()) {
                 Player p = Bukkit.getPlayer(entryName);
                 if (p != null) {
                     if (p.isOnline()) {
                         p.sendMessage(color + player.getName() + " §r誓约了 " + color + role);
+                    }
+                }
+            }
+        }
+    }
+    private void broadcastDevilChoiceMessage(Player player, String role, String color) {
+        for (Team team : teams) {
+            for (String entryName : team.getEntries()) {
+                Player p = Bukkit.getPlayer(entryName);
+                if (p != null) {
+                    if (p.isOnline()) {
+                        p.sendMessage(color + player.getName() + " §r选择成为 " + color + role);
                     }
                 }
             }
