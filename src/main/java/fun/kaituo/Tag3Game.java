@@ -660,6 +660,9 @@ public class Tag3Game extends Game implements Listener {
             team.setCanSeeFriendlyInvisibles(false);
             team.setAllowFriendlyFire(true);
             for (Player p : getPlayersNearHub(50, 50, 50)) {
+                if (getTeamPlayerIsIn(p) == null) {
+                    continue;
+                }
                 switch (getTeamPlayerIsIn(p)) {
                     case "tag3kelti", "tag3cheshirecat", "tag3mabel", "tag3norden", "tag3redhat", "tag3alice" -> {
                         humans.add(p);
