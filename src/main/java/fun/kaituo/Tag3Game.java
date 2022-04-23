@@ -4,6 +4,8 @@ package fun.kaituo;
 import fun.kaituo.event.PlayerChangeGameEvent;
 import fun.kaituo.event.PlayerEndGameEvent;
 import fun.kaituo.utils.ItemStackBuilder;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -70,8 +72,7 @@ public class Tag3Game extends Game implements Listener {
     int countDownSeconds = 10;
 
 
-    HashMap<Player, Long> cd1 = new HashMap<>();
-    HashMap<Player, Long> cd2 = new HashMap<>();
+    HashMap<Player, List<Long>> coolDown = new HashMap<>();
     HashMap<ArmorStand, ArmorStand> armourStandMap = new HashMap<>();
     HashMap<ArmorStand, Player> playerMap = new HashMap<>();
 
@@ -85,6 +86,7 @@ public class Tag3Game extends Game implements Listener {
     ItemStack dragon_breath = generateItemStack(Material.DRAGON_BREATH, "§l§d心跳悦动酒", new String[]{"瞬间恢复一定生命值，但会获得两倍回复量的发光时间", "§7梅贝尔最爱喝的酒！"});
     ItemStack honey_bottle = generateItemStack(Material.HONEY_BOTTLE, "§l§6黄金的蜂蜜酒", new String[]{"减少一半的当前生命值，获得减少数量两倍的加速时间", "§7带翼的贵妇人相当喜欢这个蜂蜜酒"});
     ItemStack enchanted_book = generateItemStack(Material.ENCHANTED_BOOK, "§l§8§k爱丽丝·里德尔的誓约", new String[]{"持有者速度永久增加，但无法被复活", "§7§m我将永远爱着你"});
+    ItemStack mushroom_stew = generateItemStack(Material.MUSHROOM_STEW, "§2比尔的便当", new String[]{"可以为已损失生命值最多的友方角色恢复全部生命值","","§7§o充满女子力的便当，篮子里塞满了蛋和各种各样的果物"});
 
 
     List<ItemStack> gadgets = Arrays.asList(feather, glass_bottle, nether_star, clock, potion, honey_bottle, coal, dragon_breath);
@@ -120,15 +122,9 @@ public class Tag3Game extends Game implements Listener {
         if (!(ede.getEntity() instanceof Player)) {
             return;
         }
-        if (ede.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
-            if ((((EntityDamageByEntityEvent) ede).getDamager() instanceof Player)) {
-                if (humans.contains(((EntityDamageByEntityEvent) ede).getDamager())) {
-                    return;
-                }
-            }
-        }
+
         Player p = (Player) ede.getEntity();
-        if (p.getInventory().contains(Material.STRING)) {
+        if (scoreboard.getTeam("tag3cheshirecat").hasPlayer(p)) {
             if (ede.getCause().equals(EntityDamageEvent.DamageCause.FALL)) {
                 ((Player) ede.getEntity()).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1, false, false));
                 ede.setCancelled(true);
@@ -140,21 +136,25 @@ public class Tag3Game extends Game implements Listener {
             removeItem(p, Material.CLOCK);
             ede.setCancelled(true);
         }
-        if (p.getInventory().contains(Material.HEART_OF_THE_SEA)) {
-            if (checkCoolDown(p, 60, cd1)) {
+        if (scoreboard.getTeam("tag3kelti").hasPlayer(p)) {
+            if (checkCoolDown(p, 60)) {
                 p.sendMessage("§b获得暂时隐身！");
                 p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, false, false));
             }
         }
-        if (p.getInventory().contains(Material.RED_DYE)) {
-            p.sendMessage("获得生命恢复与发光！");
+        if (scoreboard.getTeam("tag3redhat").hasPlayer(p)) {
+            p.sendMessage("§c获得生命恢复与发光！");
             p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0, false, false));
             p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 0, false, false));
+        }
+        if (scoreboard.getTeam("tag3dodo").hasPlayer(p)) {
+            p.sendMessage("§a获得加速！");
+            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 1));
         }
     }
 
     private void initializePlayer(Player p) {
-        switch (getTeamPlayerIsIn(p)) {
+        switch (scoreboard.getPlayerTeam(p).getName()) {
             case "tag3norden" -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 10000000, 4, true, false));
             }
@@ -163,6 +163,9 @@ public class Tag3Game extends Game implements Listener {
             }
             case "tag3mabel" -> {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10000000, 0, false, false));
+            }
+            case "tag3dodo" -> {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10000000, 0, false, false));
             }
         }
         p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 0, false, false));
@@ -239,7 +242,7 @@ public class Tag3Game extends Game implements Listener {
             pie.setCancelled(true);
             if (((Chest) (block.getState())).getBlockInventory().isEmpty()) {
                 executor.sendMessage("§c这个箱子是空的！");
-            } else if (checkCoolDown(executor, 600, cd1)) {
+            } else if (checkCoolDown(executor, 600)) {
                 ((Chest) (block.getState())).getBlockInventory().clear();
                 executor.sendMessage("§a成功破坏箱子内的所有道具！");
             }
@@ -272,6 +275,31 @@ public class Tag3Game extends Game implements Listener {
             //这里开始添加内容
 
             switch (pie.getItem().getType()) {
+                case MUSHROOM_STEW -> {
+                    Player humanWhoLostMostHealth = executor;
+                    double lostHealth = 0;
+                    for (Player p : humans) {
+                        if (scoreboard.getTeam("tag3dodo").hasPlayer(p) || scoreboard.getTeam("tag3bill").hasPlayer(p)) {
+                            continue;
+                        }
+                        double newLostHealth = p.getMaxHealth() - p.getHealth();
+                        if (newLostHealth >= lostHealth) {
+                            humanWhoLostMostHealth = p;
+                            lostHealth = newLostHealth;
+                        }
+                    }
+                    if (lostHealth == 0) {
+                        clearCoolDown(executor);
+                        executor.sendMessage("§c己方可选目标玩家全部满血！技能未生效！");
+                    } else {
+                        pie.getItem().setAmount(pie.getItem().getAmount() - 1);
+                        humanWhoLostMostHealth.setHealth(humanWhoLostMostHealth.getMaxHealth());
+                        executor.sendMessage("§a为 §f" + humanWhoLostMostHealth.getName() + " §a恢复全部生命值！");
+                        humanWhoLostMostHealth.sendMessage("§2" + executor.getName() + " §f为你恢复了全部生命值！");
+                    }
+                }
+
+
                 case COAL -> {
                     if (scoreboard.getTeam("tag3norden").hasPlayer(executor)) {
                         executor.sendMessage("§c生命全部恢复！");
@@ -280,7 +308,11 @@ public class Tag3Game extends Game implements Listener {
                         if (executor.getMaxHealth() > 3) {
                             executor.sendMessage("§c最大生命值减少，生命全部恢复！");
                             executor.setMaxHealth(executor.getMaxHealth() - 3);
-                            executor.setHealth(executor.getMaxHealth());
+                            if (!scoreboard.getTeam("tag3dodo").hasPlayer(executor)) {
+                                executor.setHealth(executor.getMaxHealth());
+                            } else {
+                                executor.sendMessage("§c你无法通过这种方式恢复生命值！");
+                            }
                             pie.getItem().setAmount(pie.getItem().getAmount() - 1);
                         } else {
                             executor.sendMessage("§c生命上限过低，无法使用！");
@@ -305,10 +337,18 @@ public class Tag3Game extends Game implements Listener {
                     executor.sendMessage("§c回复一半最大生命值，获得与回复量相同的发光时长！");
                     if (executor.getHealth() * 2 < executor.getMaxHealth()) {
                         executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, (int) (executor.getMaxHealth() * 10), 0, false, false));
-                        executor.setHealth(executor.getHealth() + executor.getMaxHealth() / 2);
+                        if (!scoreboard.getTeam("tag3dodo").hasPlayer(executor)) {
+                            executor.setHealth(executor.getHealth() + executor.getMaxHealth() / 2);
+                        }else {
+                            executor.sendMessage("§c你无法通过这种方式恢复生命值！");
+                        }
                     } else {
                         executor.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, (int) ((executor.getMaxHealth() - executor.getHealth()) * 20), 0, false, false));
-                        executor.setHealth(executor.getMaxHealth());
+                        if (!scoreboard.getTeam("tag3dodo").hasPlayer(executor)) {
+                            executor.setHealth(executor.getMaxHealth());
+                        } else {
+                            executor.sendMessage("§c你无法通过这种方式恢复生命值！");
+                        }
                     }
                 }
                 case HONEY_BOTTLE -> {
@@ -322,6 +362,9 @@ public class Tag3Game extends Game implements Listener {
                     executor.getInventory().addItem(cooked_chicken);
                     executor.sendMessage("§b获得加速！");
                     executor.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 0, false, false));
+                    if (scoreboard.getTeam("tag3dodo").hasPlayer(executor)) {
+                        executor.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
+                    }
                 }
                 case COOKED_CHICKEN -> {
                     pie.getItem().setAmount(pie.getItem().getAmount() - 1);
@@ -367,27 +410,27 @@ public class Tag3Game extends Game implements Listener {
     }
 
     public void clearCoolDown(Player p) {
-        if (cd1.get(p) != null) {
-            cd1.remove(p);
-        }
-        if (cd2.get(p) != null) {
-            cd2.remove(p);
+        p.setLevel(0);
+        p.setExp(0);
+        if (coolDown.get(p) != null) {
+            coolDown.get(p).set(0, 0L);
+            coolDown.get(p).set(1, 0L);
         }
     }
 
-    public boolean checkCoolDown(Player p, long coolDown, HashMap<Player, Long> map) {
-        if (map.get(p) == null) {
-            map.put(p, getTime(world));
+    private void setCoolDown(Player p, long remainingCoolDown, long totalCoolDown) {
+        coolDown.get(p).set(0, remainingCoolDown);
+        coolDown.get(p).set(1, totalCoolDown);
+    }
+
+    private boolean checkCoolDown(Player p, long cd) {
+        if (coolDown.get(p).get(0) == 0) {
+            coolDown.get(p).set(0, cd);
+            coolDown.get(p).set(1, cd);
             return true;
         } else {
-            long timeLapsed = getTime(world) - map.get(p);
-            if (timeLapsed < coolDown) {
-                p.sendMessage("§c§l技能冷却中！ 还剩 §6§l" + (int) ((coolDown - timeLapsed) / 20) + " §c§l秒");
-                return false;
-            } else {
-                map.put(p, getTime(world));
-                return true;
-            }
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§4§l技能冷却中！"));
+            return false;
         }
     }
 
@@ -412,20 +455,36 @@ public class Tag3Game extends Game implements Listener {
         if (!(edbee.getEntity() instanceof Player)) {
             return;
         }
-        if (humans.contains(edbee.getDamager())) {
+        Player victim = (Player) edbee.getEntity();
+        Player damager = (Player) edbee.getDamager();
+        if (humans.contains(damager) && devils.contains(victim)) {
+            if (scoreboard.getTeam("tag3eunice").hasPlayer(damager)) {
+                if (damager.getInventory().getItemInMainHand().getType().equals(Material.IRON_SWORD)) {
+                    if (checkCoolDown(damager,  1200)) {
+                        damager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 1, false, false));
+                        damager.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION,  150, 1, false, false));
+                        damager.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,  100, 0, false, false));
+                        damager.sendMessage("§c获得加速、恢复和隐身！");
+                    }
+                }
+            } else {
+                edbee.setCancelled(true);
+            }
+        } else if (humans.contains(damager) && humans.contains(victim)) {
             edbee.setCancelled(true);
-        }
-        if (devils.contains(edbee.getDamager()) && humans.contains(edbee.getEntity())) {
-            Location l = edbee.getDamager().getLocation().clone();
+        } else if (devils.contains(damager) && humans.contains(victim)) {
+            int freezeTime = 60;
+            if (scoreboard.getTeam("tag3miranda").hasPlayer(damager)) { //米兰达
+                freezeTime = 110;
+            }
+            Location l = damager.getLocation().clone();
             int id = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-                edbee.getDamager().teleport(l);
+                damager.teleport(l);
             }, 1, 1);
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Bukkit.getScheduler().cancelTask(id);
-            }, 60);
-            ((Player) edbee.getDamager()).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 254, false, false));
-            ((Player) edbee.getDamager()).addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 60, 190, false, false));
-            ((Player) edbee.getDamager()).addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 60, 254, false, false));
+            }, freezeTime);
+            damager.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, freezeTime, 254, false, false));
         }
     }
 
@@ -533,7 +592,8 @@ public class Tag3Game extends Game implements Listener {
             return;
         }
         switch (pdie.getItemDrop().getItemStack().getType()) {
-            case RABBIT_FOOT, BOOK, STRING, HEART_OF_THE_SEA, ENCHANTED_BOOK, ENDER_EYE, RED_DYE, POPPED_CHORUS_FRUIT -> pdie.setCancelled(true);
+            case RABBIT_FOOT, BOOK, STRING, HEART_OF_THE_SEA, ENCHANTED_BOOK, ENDER_EYE, RED_DYE, POPPED_CHORUS_FRUIT,
+                    BLAZE_POWDER, TOTEM_OF_UNDYING, END_ROD, IRON_SWORD, SWEET_BERRIES, NETHERITE_AXE, NETHERITE_SWORD-> pdie.setCancelled(true);
             default -> {
             }
         }
@@ -660,14 +720,15 @@ public class Tag3Game extends Game implements Listener {
             team.setCanSeeFriendlyInvisibles(false);
             team.setAllowFriendlyFire(true);
             for (Player p : getPlayersNearHub(50, 50, 50)) {
-                if (getTeamPlayerIsIn(p) == null) {
+                if (scoreboard.getPlayerTeam(p) == null) {
                     continue;
                 }
-                switch (getTeamPlayerIsIn(p)) {
-                    case "tag3kelti", "tag3cheshirecat", "tag3mabel", "tag3norden", "tag3redhat", "tag3alice" -> {
+                switch (scoreboard.getPlayerTeam(p).getName()) {
+                    case "tag3kelti", "tag3cheshirecat", "tag3mabel", "tag3norden", "tag3redhat", "tag3alice",
+                            "tag3dodo", "tag3leaf","tag3bill","tag3eunice" -> {
                         humans.add(p);
                     }
-                    case "tag3lindamayer" -> {
+                    case "tag3lindamayer", "tag3miranda" -> {
                         devils.add(p);
                     }
                 }
@@ -734,7 +795,6 @@ public class Tag3Game extends Game implements Listener {
                     for (Player p : devils) {
                         p.teleport(new Location(world, -1000, 53, 975));
                         p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 4, false, false));
-                        p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 999999, 1, false, false));
                         p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999999, 0, false, false));
                         ItemStack skull = new ItemStackBuilder(Material.WITHER_SKELETON_SKULL).addEnchantment(Enchantment.BINDING_CURSE, 1).build();
                         ItemStack chestPlate = new ItemStackBuilder(Material.NETHERITE_CHESTPLATE).addEnchantment(Enchantment.BINDING_CURSE, 1).setUnbreakable(true).build();
@@ -746,6 +806,11 @@ public class Tag3Game extends Game implements Listener {
                         p.getInventory().setItem(EquipmentSlot.FEET, boots);
                     }
                     for (Player p : players) {
+                        if (scoreboard.getTeam("tag3leaf").hasPlayer(p)) {
+                            p.getInventory().addItem(coal);
+                        } else if (scoreboard.getTeam("tag3bill").hasPlayer(p)) {
+                            p.getInventory().addItem(mushroom_stew);
+                        }
                         p.sendTitle("§e游戏开始！", null, 2, 16, 2);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1f, 2f);
                     }
@@ -816,6 +881,38 @@ public class Tag3Game extends Game implements Listener {
 
 
                 taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+                    for (Player p : humans) {
+                        if (scoreboard.getTeam("tag3bill").hasPlayer(p)) {
+                            int counter = 0;
+                            for (ItemStack i : p.getInventory().all(Material.MUSHROOM_STEW).values()) {
+                                counter += i.getAmount();
+                            }
+                            if (counter < 2) {
+                                p.getInventory().addItem(mushroom_stew);
+                                p.sendMessage("§a获得便当！");
+                            }
+                        }
+                    }
+                }, countDownSeconds * 20L + 400 + 1200, 1200));
+
+                taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+                    for (Player p : humans) {
+                        if (scoreboard.getTeam("tag3leaf").hasPlayer(p)) {
+                            int spawnNo = random.nextInt(totalWeight);
+                            int counter = 0;
+                            for (int i = 0; i < gadgets.size(); i++) {
+                                counter += gadgetWeights.get(i);
+                                if (spawnNo < counter) {
+                                    p.getInventory().addItem(gadgets.get(i));
+                                    p.sendMessage("§a获得随机道具！");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }, countDownSeconds * 20L + 400 + 900, 900));
+
+                taskIds.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
                     long time = getTime(world);
                     if (time - startTime > gameTime) {
                         endGame("§e时间到，人类获胜！", humans);
@@ -836,14 +933,7 @@ public class Tag3Game extends Game implements Listener {
         };
     }
 
-    private String getTeamPlayerIsIn(Player p) {
-        for (Team t : scoreboard.getTeams()) {
-            if (t.hasPlayer(p)) {
-                return t.getName();
-            }
-        }
-        return null;
-    }
+
 
     public void clearChests() {
         for (Location l : locations) {

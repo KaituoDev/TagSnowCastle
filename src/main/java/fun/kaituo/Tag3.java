@@ -128,6 +128,41 @@ public class Tag3 extends JavaPlugin implements Listener {
             broadcastHumanChoiceMessage(player, "克缇", "§9");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag3kelti " + player.getName());
             player.sendMessage("§9克缇§f： 嗯，嗯，克缇，记住了哦。请多指教，" + player.getName() + "酱");
+        } else if (x == -998 && y == 77 && z == 993) {
+            if (scoreboard.getTeam("tag3leaf").hasPlayer(player)) {
+                return;
+            }
+            broadcastHumanChoiceMessage(player, "莉耶芙", "§a");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag4leaf " + player.getName());
+            player.sendMessage("§a莉耶芙§f： 对吧,这果然就是所谓的命运啊!");
+        } else if (x == -1002 && y == 77 && z == 993) {
+            if (scoreboard.getTeam("tag3dodo").hasPlayer(player)) {
+                return;
+            }
+            broadcastHumanChoiceMessage(player, "渡渡", "§7");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag4dodo " + player.getName());
+            player.sendMessage("§7渡渡§f： 哼哼——！看来你的心已被吾辈俘获，是这么回事吧？");
+        } else if (x == -998 && y == 77 && z == 997) {
+            if (scoreboard.getTeam("tag3eunice").hasPlayer(player)) {
+                return;
+            }
+            broadcastHumanChoiceMessage(player, "尤妮丝", "§f");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag4eunice " + player.getName());
+            player.sendMessage("§f尤妮丝§f： 很好，让我们一起守护平等而纯洁的世界吧");
+        } else if (x == -1002 && y == 77 && z == 1001) {
+            if (scoreboard.getTeam("tag3bill").hasPlayer(player)) {
+                return;
+            }
+            broadcastHumanChoiceMessage(player, "比尔", "§2");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag4bill " + player.getName());
+            player.sendMessage("§2比尔§f： 那个...我为"+ player.getName()+"做了便当...不介意的话请您尝尝看吧~");
+        }  else if (x == -998 && y == 77 && z == 1001) {
+            if (scoreboard.getTeam("tag3miranda").hasPlayer(player)) {
+                return;
+            }
+            broadcastDevilChoiceMessage(player, "米兰达", "§8");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join tag4miranda " + player.getName());
+            player.sendMessage("§8米兰达§f： 总有一天，这个虚假的世界会迎来崩坏的时刻......");
         }
     }
 
