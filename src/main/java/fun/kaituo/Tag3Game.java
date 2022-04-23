@@ -97,7 +97,7 @@ public class Tag3Game extends Game implements Listener {
     private Tag3Game(Tag3 plugin) {
         this.plugin = plugin;
         initializeGame(plugin, "Tag3", "§f白雪城", new Location(world, -1000, 76, 1010),
-                new BoundingBox(-1096, 52, 904, -904, 74, 1096));
+                new BoundingBox(-1200, 0, 800, -800, 256, 1200));
         initializeButtons(new Location(world, -1000, 77, 1015), BlockFace.NORTH,
                 new Location(world, -1007, 77, 1010), BlockFace.EAST);
         players = Tag3.players;
