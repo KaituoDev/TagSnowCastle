@@ -789,6 +789,30 @@ public class Tag3Game extends Game implements Listener {
                         }
                     }, countDownSeconds * 20L + 300 + i * 20);
                 }
+
+
+                taskIds.add(
+                        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, ()-> {
+                            for (Player p : players) {
+                                if (coolDown.get(p) == null) {
+                                    List<Long> l = new ArrayList<>(2);
+                                    l.add(0,0L);
+                                    l.add(1,0L);
+                                    coolDown.put(p, l);
+                                } else {
+                                    List<Long> l = coolDown.get(p);
+                                    //p.sendMessage(String.valueOf(l.get(0)));
+                                    if (l.get(0) > 0) {
+                                        l.set(0, l.get(0) - 1);
+                                    }
+                                    if (l.get(1) != 0) {
+                                        p.setLevel((int) Math.ceil(((float)l.get(0)) / 20));
+                                        p.setExp(((float)(l.get(1) - l.get(0))) / l.get(1));
+                                    }
+
+                                }
+                            }
+                        }, 1,1 ));
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     placeSpectateButton();
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "function tag3:go");
