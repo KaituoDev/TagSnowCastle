@@ -122,7 +122,13 @@ public class Tag3Game extends Game implements Listener {
         if (!(ede.getEntity() instanceof Player)) {
             return;
         }
-
+        if (ede.getCause().equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
+            if ((((EntityDamageByEntityEvent) ede).getDamager() instanceof Player)) {
+                if (humans.contains(((EntityDamageByEntityEvent) ede).getDamager())) {
+                    return;
+                }
+            }
+        } //友军不能触发特效
         Player p = (Player) ede.getEntity();
         if (scoreboard.getTeam("tag3cheshirecat").hasPlayer(p)) {
             if (ede.getCause().equals(EntityDamageEvent.DamageCause.FALL)) {
