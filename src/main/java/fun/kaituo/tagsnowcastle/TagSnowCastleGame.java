@@ -1,9 +1,10 @@
-package fun.kaituo;
+package fun.kaituo.tagsnowcastle;
 
 
-import fun.kaituo.event.PlayerChangeGameEvent;
-import fun.kaituo.event.PlayerEndGameEvent;
-import fun.kaituo.utils.ItemStackBuilder;
+import fun.kaituo.gameutils.Game;
+import fun.kaituo.gameutils.PlayerQuitData;
+import fun.kaituo.gameutils.event.PlayerEndGameEvent;
+import fun.kaituo.gameutils.utils.ItemStackBuilder;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -34,19 +35,17 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import java.util.*;
 
-import static fun.kaituo.GameUtils.*;
 
-public class Tag3Game extends Game implements Listener {
-    private static final Tag3Game instance = new Tag3Game((Tag3) Bukkit.getPluginManager().getPlugin("Tag3"));
+public class TagSnowCastleGame extends Game implements Listener {
+    private static final TagSnowCastleGame instance = new TagSnowCastleGame((TagSnowCastle) Bukkit.getPluginManager().getPlugin("TagSnowCastle"));
     Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
     Scoreboard tag3 = Bukkit.getScoreboardManager().getNewScoreboard();
-    Tag3 plugin;
+    TagSnowCastle plugin;
     List<Player> humans = new ArrayList<>();
     List<Player> devils = new ArrayList<>();
     long startTime;
@@ -94,13 +93,13 @@ public class Tag3Game extends Game implements Listener {
 
     int totalWeight;
 
-    private Tag3Game(Tag3 plugin) {
+    private TagSnowCastleGame(TagSnowCastle plugin) {
         this.plugin = plugin;
-        initializeGame(plugin, "Tag3", "§f白雪城", new Location(world, -1000, 76, 1010),
-                new BoundingBox(-1200, 0, 800, -800, 256, 1200));
+        initializeGame(plugin, "TagSnowCastle", "§f白雪城", new Location(world, -1000, 76, 1010));
         initializeButtons(new Location(world, -1000, 77, 1015), BlockFace.NORTH,
                 new Location(world, -1007, 77, 1010), BlockFace.EAST);
-        players = Tag3.players;
+        initializeGameRunnable();
+        players = TagSnowCastle.players;
         tag3.registerNewObjective("tag3", "dummy", "鬼抓人");
         tag3.getObjective("tag3").setDisplaySlot(DisplaySlot.SIDEBAR);
         for (int i : gadgetWeights) {
@@ -108,7 +107,7 @@ public class Tag3Game extends Game implements Listener {
         }
     }
 
-    public static Tag3Game getInstance() {
+    public static TagSnowCastleGame getInstance() {
         return instance;
     }
 
@@ -623,33 +622,31 @@ public class Tag3Game extends Game implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerChangeGame(PlayerChangeGameEvent pcge) {
-        players.remove(pcge.getPlayer());
-        humans.remove(pcge.getPlayer());
-        devils.remove(pcge.getPlayer());
-    }
-
-    public void savePlayerQuitData(Player p) {
+    @Override
+    protected void quit(Player p) {
+        if (players.contains(p)) {
+            return;
+        }
         PlayerQuitData quitData = new PlayerQuitData(p, this, gameUUID);
         quitData.getData().put("team", whichGroup(p));
-        setPlayerQuitData(p.getUniqueId(), quitData);
+        gameUtils.setPlayerQuitData(p.getUniqueId(), quitData);
         players.remove(p);
         humans.remove(p);
         devils.remove(p);
     }
 
+
     @Override
-    protected void rejoin(Player p) {
+    protected boolean rejoin(Player p) {
         if (!running) {
             p.sendMessage("§c游戏已经结束！");
-            return;
+            return false;
         }
-        if (!getPlayerQuitData(p.getUniqueId()).getGameUUID().equals(gameUUID)) {
+        if (!gameUtils.getPlayerQuitData(p.getUniqueId()).getGameUUID().equals(gameUUID)) {
             p.sendMessage("§c游戏已经结束！");
-            return;
+            return false;
         }
-        PlayerQuitData pqd = getPlayerQuitData(p.getUniqueId());
+        PlayerQuitData pqd = gameUtils.getPlayerQuitData(p.getUniqueId());
         pqd.restoreBasicData(p);
         players.add(p);
         team.addPlayer(p);
@@ -657,7 +654,23 @@ public class Tag3Game extends Game implements Listener {
         if (pqd.getData().get("team") != null) {
             ((List<Player>) pqd.getData().get("team")).add(p);
         }
-        setPlayerQuitData(p.getUniqueId(), null);
+        gameUtils.setPlayerQuitData(p.getUniqueId(), null);
+        return true;
+    }
+
+    @Override
+    protected boolean join(Player player) {
+        player.setBedSpawnLocation(hubLocation, true);
+        player.teleport(hubLocation);
+        scoreboard.getTeam("tag3norden").addPlayer(player);
+        return true;
+    }
+
+    @Override
+    protected void forceStop() {
+        if (running) {
+            endGame("§c游戏被强制终止", new ArrayList<>());
+        }
     }
 
     private List<Player> whichGroup(Player p) {
@@ -717,10 +730,10 @@ public class Tag3Game extends Game implements Listener {
         cancelGameTasks();
     }
 
-    @Override
-    protected void initializeGameRunnable() {
+
+    private void initializeGameRunnable() {
         gameRunnable = () -> {
-            gameTime = Tag3.gameTime;
+            gameTime = TagSnowCastle.gameTime;
             team = tag3.registerNewTeam("tag3");
             team.setNameTagVisibility(NameTagVisibility.NEVER);
             team.setCanSeeFriendlyInvisibles(false);
