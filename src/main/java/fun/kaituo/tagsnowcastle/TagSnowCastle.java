@@ -87,7 +87,7 @@ public class TagSnowCastle extends Game {
 
         instance = this;
         saveDefaultConfig();
-        updateExtraInfo("§3地下箱庭", getLoc("hub"));
+        updateExtraInfo("§f白雪城", getLoc("hub"));
         initScoreboard();
         Bukkit.getScheduler().runTaskLater(this, () -> {
             initStates();
