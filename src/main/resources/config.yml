@@ -1,0 +1,34 @@
+characters:
+  Lindamayer:
+    attack-cooldown-ticks: 60
+    cd: 1800
+    glowing-duration: 100
+  Miranda:
+    attack-cooldown-ticks: 110
+    pearl-cooldown: 600
+  RedHat:
+    duration: 100
+    regeneration-amplifier: 0
+    resistance-amplifier: 0
+  Dodo:
+    speed-duration: 60
+  CheshireCat:
+    speed-duration: 60
+    speed-amplifier: 0
+  Eunice:
+    cd: 2000
+    duration: 200
+    speed-amplifier: 1
+    regeneration-amplifier: 1
+  Leaf:
+    item-obtain-cooldown: 600
+  Bill:
+    cd: 2400
+    serpent-god-blood-obtain-cooldown: 3600
+  Mabel:
+    cd: 1500
+    duration: 100
+  Kelti:
+    cd: 2400
+    skill-duration: 100
+    invisibility-duration: 20
